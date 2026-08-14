@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>General Store — Shop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">General<span class="dot">·</span>Store</a>
+    <nav class="nav-links">
+      <a href="index.html">Shop</a>
+      <a href="cart.html">Cart <span class="cart-badge" id="cart-badge">0</span></a>
+      <span id="user-chip"></span>
+      <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
+    </nav>
+  </div>
+</header>
+
+<div class="search-bar">
+  <div class="container">
+    <form id="search-form">
+      <input type="text" id="search-input" placeholder="Search products…">
+    </form>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="container">
+    <div class="eyebrow">New stock every week</div>
+    <h1>Everyday goods, honestly priced.</h1>
+    <p>Electronics, footwear, home essentials, and more — picked for quality and shipped fast.</p>
+  </div>
+</section>
+
+<main class="container">
+  <div class="section-title">
+    <h2>All products</h2>
+    <span class="count" id="result-count"></span>
+  </div>
+  <div class="product-grid" id="product-grid"></div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">General Store — a demo e-commerce app built with Express and MySQL.</div>
+</footer>
+
+<script src="js/api.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

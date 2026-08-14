@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Cart — General Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">General<span class="dot">·</span>Store</a>
+    <nav class="nav-links">
+      <a href="index.html">Shop</a>
+      <a href="cart.html">Cart <span class="cart-badge" id="cart-badge">0</span></a>
+      <span id="user-chip"></span>
+      <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="section-title" style="margin-top:36px">
+    <h2>Your cart</h2>
+  </div>
+
+  <div class="cart-layout" id="cart-layout">
+    <div id="cart-items"></div>
+    <div class="summary-box">
+      <h3>Order summary</h3>
+      <div class="summary-row"><span>Subtotal</span><span id="summary-subtotal">$0.00</span></div>
+      <div class="summary-row total"><span>Total</span><span id="summary-total">$0.00</span></div>
+
+      <label for="shipping-address" style="font-family:var(--font-mono);font-size:0.8rem;color:var(--muted);display:block;margin-bottom:6px">Shipping address (optional)</label>
+      <textarea id="shipping-address" placeholder="123 Main St, City, Country"></textarea>
+
+      <button class="btn btn-primary btn-block" id="checkout-btn">Place order</button>
+      <p id="checkout-feedback" class="alert" style="margin-top:12px"></p>
+    </div>
+  </div>
+
+  <div class="empty-state" id="cart-empty" style="display:none">
+    <div class="big">Your cart is empty</div>
+    <p>Add a few things you like.</p>
+    <br>
+    <a class="btn btn-dark" href="index.html">Browse products</a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">General Store — a demo e-commerce app built with Express and MySQL.</div>
+</footer>
+
+<script src="js/api.js"></script>
+<script src="js/cart.js"></script>
+</body>
+</html>
