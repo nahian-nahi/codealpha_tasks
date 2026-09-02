@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Dashboard — CUET Bus Reservation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="dot"></span> CUET BUS RESERVATION</div>
+  <nav>
+    <a href="#" class="active" onclick="showSection('trips')">Trips</a>
+    <a href="#" onclick="showSection('mine')">My Reservations</a>
+    <span class="role-badge" id="userNameBadge"></span>
+    <button onclick="logout()">Log out</button>
+  </nav>
+</div>
+
+<div class="container">
+
+  <div id="section-trips">
+    <h2 class="page-title">Available Trips</h2>
+    <p class="page-subtitle">Pick a trip to see the live seat map. Blue = male seat, pink = female seat, grey = open to anyone.</p>
+    <div class="card">
+      <table class="board" id="tripsTable">
+        <thead>
+          <tr><th>Bus</th><th>Route</th><th>Date</th><th>Departs</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody id="tripsBody"></tbody>
+      </table>
+      <div class="empty-state" id="tripsEmpty" style="display:none;">No trips scheduled yet. Check back soon.</div>
+    </div>
+  </div>
+
+  <div id="section-mine" style="display:none;">
+    <h2 class="page-title">My Reservations</h2>
+    <p class="page-subtitle">All the trips you've booked a seat on.</p>
+    <div class="card">
+      <table class="board" id="myTable">
+        <thead>
+          <tr><th>Bus</th><th>Route</th><th>Date</th><th>Departs</th><th>Seat</th><th>Receipt</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody id="myBody"></tbody>
+      </table>
+      <div class="empty-state" id="myEmpty" style="display:none;">You haven't reserved a seat yet.</div>
+    </div>
+  </div>
+
+  <!-- Seat map card, shown when a trip is selected -->
+  <div class="card" id="seatCard" style="display:none;">
+    <h3 id="seatCardTitle">Seat Map</h3>
+    <div class="seat-map" id="seatMap"></div>
+    <div class="legend">
+      <span><i style="background:var(--seat-male)"></i> Male</span>
+      <span><i style="background:var(--seat-female)"></i> Female</span>
+      <span><i style="background:var(--seat-any)"></i> Any</span>
+      <span><i style="background:var(--seat-booked)"></i> Booked</span>
+    </div>
+    <button class="btn btn-amber" id="confirmSeatBtn" disabled>Reserve Selected Seat</button>
+    <div class="msg" id="seatMsg"></div>
+  </div>
+
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/user.js"></script>
+</body>
+</html>

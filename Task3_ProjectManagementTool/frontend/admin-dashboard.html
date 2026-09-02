@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — CUET Bus Reservation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="dot"></span> CUET BUS RESERVATION</div>
+  <nav>
+    <a href="#" class="active" onclick="showTab('overview', event)">Overview</a>
+    <a href="#" onclick="showTab('buses', event)">Buses</a>
+    <a href="#" onclick="showTab('drivers', event)">Drivers</a>
+    <a href="#" onclick="showTab('routes', event)">Routes</a>
+    <a href="#" onclick="showTab('schedules', event)">Schedules</a>
+    <span class="role-badge">ADMIN</span>
+    <button onclick="logout()">Log out</button>
+  </nav>
+</div>
+
+<div class="container">
+
+  <!-- OVERVIEW -->
+  <div id="tab-overview">
+    <h2 class="page-title">Overview</h2>
+    <p class="page-subtitle">System-wide numbers at a glance.</p>
+    <div class="stat-row">
+      <div class="stat-box"><div class="num" id="statUsers">–</div><div class="label">Users</div></div>
+      <div class="stat-box"><div class="num" id="statBuses">–</div><div class="label">Buses</div></div>
+      <div class="stat-box"><div class="num" id="statDrivers">–</div><div class="label">Drivers</div></div>
+      <div class="stat-box"><div class="num" id="statBookings">–</div><div class="label">Confirmed Bookings</div></div>
+    </div>
+    <div class="card">
+      <h3>Reservation System</h3>
+      <p class="page-subtitle" style="margin-bottom:8px;">Turn off intake system-wide during emergencies or maintenance.</p>
+      <span class="status-pill" id="systemStatusPill">–</span>
+      <button class="btn btn-small" id="toggleSystemBtn" style="margin-left:10px;">Toggle</button>
+    </div>
+  </div>
+
+  <!-- BUSES -->
+  <div id="tab-buses" style="display:none;">
+    <h2 class="page-title">Buses</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Add Bus</h3>
+        <form id="busForm">
+          <label>Bus name (unique)</label>
+          <input type="text" id="busName" required>
+          <label>Number plate</label>
+          <input type="text" id="busPlate" required>
+          <label>Total seats</label>
+          <input type="number" id="busSeats" required min="1">
+          <label>Assign driver</label>
+          <select id="busDriver"><option value="">— none —</option></select>
+          <button class="btn btn-amber" type="submit">Add Bus</button>
+        </form>
+        <div class="msg" id="busMsg"></div>
+      </div>
+      <div class="card">
+        <h3>All Buses</h3>
+        <table class="board" id="busTable">
+          <thead><tr><th>Name</th><th>Plate</th><th>Seats</th><th>Status</th><th></th></tr></thead>
+          <tbody id="busBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- DRIVERS -->
+  <div id="tab-drivers" style="display:none;">
+    <h2 class="page-title">Drivers</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Add Driver</h3>
+        <form id="driverForm">
+          <label>Name</label>
+          <input type="text" id="driverName" required>
+          <label>Contact number</label>
+          <input type="text" id="driverContact" required>
+          <label>License number</label>
+          <input type="text" id="driverLicense" required>
+          <label>Address</label>
+          <input type="text" id="driverAddress">
+          <button class="btn btn-amber" type="submit">Add Driver</button>
+        </form>
+        <div class="msg" id="driverMsg"></div>
+      </div>
+      <div class="card">
+        <h3>All Drivers</h3>
+        <p class="page-subtitle" style="margin-bottom:8px;">Drivers log in with their Driver ID + contact number.</p>
+        <table class="board" id="driverTable">
+          <thead><tr><th>ID</th><th>Name</th><th>Contact</th><th>Status</th><th></th></tr></thead>
+          <tbody id="driverBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROUTES -->
+  <div id="tab-routes" style="display:none;">
+    <h2 class="page-title">Routes</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Add Route</h3>
+        <form id="routeForm">
+          <label>Route name (unique)</label>
+          <input type="text" id="routeName" required>
+          <label>Start point</label>
+          <input type="text" id="routeStart" required>
+          <label>End point</label>
+          <input type="text" id="routeEnd" required>
+          <label>Boarding location</label>
+          <input type="text" id="routeBoarding">
+          <label>Getting-off location</label>
+          <input type="text" id="routeOff">
+          <button class="btn btn-amber" type="submit">Add Route</button>
+        </form>
+        <div class="msg" id="routeMsg"></div>
+      </div>
+      <div class="card">
+        <h3>All Routes</h3>
+        <table class="board" id="routeTable">
+          <thead><tr><th>Name</th><th>Start</th><th>End</th><th></th></tr></thead>
+          <tbody id="routeBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCHEDULES -->
+  <div id="tab-schedules" style="display:none;">
+    <h2 class="page-title">Schedules</h2>
+    <p class="page-subtitle">Seats auto-open 2 hours before departure, or midnight for morning trips.</p>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Add Schedule</h3>
+        <form id="scheduleForm">
+          <label>Bus</label>
+          <select id="schedBus" required></select>
+          <label>Route</label>
+          <select id="schedRoute" required></select>
+          <label>Travel date</label>
+          <input type="date" id="schedDate" required>
+          <label>Departure time</label>
+          <input type="time" id="schedTime" required>
+          <button class="btn btn-amber" type="submit">Add Schedule</button>
+        </form>
+        <div class="msg" id="scheduleMsg"></div>
+      </div>
+      <div class="card">
+        <h3>All Schedules</h3>
+        <table class="board" id="scheduleTable">
+          <thead><tr><th>Bus</th><th>Route</th><th>Date</th><th>Time</th><th>Status</th><th></th></tr></thead>
+          <tbody id="scheduleBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

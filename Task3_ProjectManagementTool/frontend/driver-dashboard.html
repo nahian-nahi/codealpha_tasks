@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Driver Dashboard — CUET Bus Reservation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="dot"></span> CUET BUS RESERVATION</div>
+  <nav>
+    <span class="role-badge" id="driverBadge"></span>
+    <button onclick="logout()">Log out</button>
+  </nav>
+</div>
+
+<div class="container">
+  <h2 class="page-title">My Assigned Trips</h2>
+  <p class="page-subtitle">Confirm trip status as you go, and flag any issues with the bus.</p>
+
+  <div class="card">
+    <table class="board" id="tripTable">
+      <thead><tr><th>Bus</th><th>Route</th><th>Date</th><th>Time</th><th>Status</th><th>Update</th></tr></thead>
+      <tbody id="tripBody"></tbody>
+    </table>
+    <div class="empty-state" id="tripEmpty" style="display:none;">No trips assigned to you yet.</div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/driver.js"></script>
+</body>
+</html>

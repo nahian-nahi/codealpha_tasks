@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PulseWork | Real-Time Collaborative Project Management</title>
+  <meta name="description" content="A powerful, real-time collaborative workspace for managing projects, Kanban board tasks, team assignments, and task discussions.">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Main Styling -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- AUTH CONTAINER (Login / Register) -->
+  <div id="auth-container" class="auth-screen">
+    <div class="auth-card glass-panel">
+      <div class="auth-brand">
+        <div class="brand-logo">
+          <i class="fa-solid fa-layer-group"></i>
+        </div>
+        <h1>PulseWork</h1>
+        <p>Real-time Collaborative Workspace</p>
+      </div>
+
+      <!-- Quick Switch Demo Users (For super convenient multi-browser testing!) -->
+      <div class="demo-users-box">
+        <span class="demo-label"><i class="fa-solid fa-bolt"></i> Quick Demo Accounts (Click to test live sync):</span>
+        <div class="demo-buttons">
+          <button class="btn btn-demo" onclick="quickLogin('alex@example.com', 'password123')">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Alex" class="demo-avatar">
+            <span>Alex (Lead)</span>
+          </button>
+          <button class="btn btn-demo" onclick="quickLogin('sarah@example.com', 'password123')">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" alt="Sarah" class="demo-avatar">
+            <span>Sarah (Dev)</span>
+          </button>
+          <button class="btn btn-demo" onclick="quickLogin('mike@example.com', 'password123')">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150" alt="Mike" class="demo-avatar">
+            <span>Mike (Engine)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Auth Form -->
+      <form id="auth-form" onsubmit="handleAuthSubmit(event)">
+        <div id="auth-error" class="alert alert-error hidden"></div>
+
+        <div id="name-group" class="form-group hidden">
+          <label for="reg-name"><i class="fa-regular fa-user"></i> Full Name</label>
+          <input type="text" id="reg-name" placeholder="John Doe">
+        </div>
+
+        <div class="form-group">
+          <label for="auth-email"><i class="fa-regular fa-envelope"></i> Email Address</label>
+          <input type="email" id="auth-email" required placeholder="alex@example.com">
+        </div>
+
+        <div class="form-group">
+          <label for="auth-password"><i class="fa-solid fa-lock"></i> Password</label>
+          <input type="password" id="auth-password" required placeholder="••••••••">
+        </div>
+
+        <button type="submit" id="auth-submit-btn" class="btn btn-primary btn-block">
+          <i class="fa-solid fa-right-to-bracket"></i> Sign In
+        </button>
+      </form>
+
+      <div class="auth-toggle">
+        <span id="toggle-msg">Don't have an account?</span>
+        <a href="#" id="toggle-auth-mode" onclick="toggleAuthMode(event)">Create one now</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP CONTAINER (Protected) -->
+  <div id="app-container" class="app-layout hidden">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <i class="fa-solid fa-layer-group brand-icon"></i>
+          <span class="brand-name">PulseWork</span>
+        </div>
+        <button class="btn-icon sidebar-toggle" id="sidebar-toggle-btn" title="Toggle Sidebar">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+      </div>
+
+      <div class="sidebar-content">
+        <nav class="nav-section">
+          <span class="section-title">Navigation</span>
+          <a href="#" class="nav-item active" id="nav-dashboard" onclick="showView('dashboard')">
+            <i class="fa-solid fa-table-columns"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="#" class="nav-item" id="nav-my-tasks" onclick="showView('my-tasks')">
+            <i class="fa-solid fa-list-check"></i>
+            <span>My Assigned Tasks</span>
+            <span class="badge" id="my-task-count">0</span>
+          </a>
+        </nav>
+
+        <nav class="nav-section">
+          <div class="section-header">
+            <span class="section-title">Projects</span>
+            <button class="btn-icon btn-sm" onclick="openCreateProjectModal()" title="Create New Project">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+          <div id="sidebar-projects-list" class="projects-list">
+            <!-- Project items dynamically inserted -->
+          </div>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-widget" onclick="openProfileModal()">
+          <img id="user-avatar-img" src="" alt="User Avatar" class="user-avatar">
+          <div class="user-info">
+            <span id="user-display-name" class="user-name">Loading...</span>
+            <span id="user-display-email" class="user-email">...</span>
+          </div>
+          <button class="btn-icon" title="Logout" onclick="logout(event)">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN WRAPPER -->
+    <main class="main-wrapper">
+      <!-- TOP HEADER -->
+      <header class="top-header">
+        <div class="header-left">
+          <h2 id="view-title" class="page-title">Dashboard Overview</h2>
+          <div id="project-header-actions" class="project-actions hidden">
+            <span class="project-badge" id="project-color-badge"></span>
+            <button class="btn btn-secondary btn-sm" onclick="openProjectMembersModal()">
+              <i class="fa-solid fa-users"></i> Members (<span id="project-member-count">0</span>)
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="openProjectSettingsModal()">
+              <i class="fa-solid fa-gear"></i> Settings
+            </button>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- Live Socket Status Indicator -->
+          <div class="socket-status" id="socket-status" title="Real-time WebSockets Connected">
+            <span class="status-dot online"></span>
+            <span class="status-text">Live Sync</span>
+          </div>
+
+          <!-- Search Bar -->
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="global-search" placeholder="Search tasks, tags..." oninput="handleGlobalSearch(this.value)">
+          </div>
+
+          <!-- View Mode Switcher (Kanban / List) -->
+          <div id="board-view-switch" class="view-switcher hidden">
+            <button class="switch-btn active" id="btn-view-kanban" onclick="switchBoardView('kanban')" title="Kanban Board View">
+              <i class="fa-solid fa-table-columns"></i>
+            </button>
+            <button class="switch-btn" id="btn-view-list" onclick="switchBoardView('list')" title="List View">
+              <i class="fa-solid fa-bars-staggered"></i>
+            </button>
+          </div>
+
+          <!-- Add Task Quick Button -->
+          <button id="header-add-task-btn" class="btn btn-primary hidden" onclick="openCreateTaskModal()">
+            <i class="fa-solid fa-plus"></i> Add Task
+          </button>
+
+          <!-- Notifications Bell -->
+          <div class="notification-dropdown-wrapper">
+            <button class="btn-icon notification-bell" id="notification-bell-btn" onclick="toggleNotificationsMenu()">
+              <i class="fa-regular fa-bell"></i>
+              <span class="unread-badge hidden" id="notification-badge">0</span>
+            </button>
+
+            <div class="notification-menu hidden" id="notification-menu">
+              <div class="notification-header">
+                <h3>Notifications</h3>
+                <button class="btn-link text-xs" onclick="markAllNotificationsRead()">Mark all as read</button>
+              </div>
+              <div class="notification-list" id="notification-list">
+                <div class="empty-state-sm">No new notifications</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- VIEW CONTAINER -->
+      <section class="view-content" id="view-content">
+        <!-- DASHBOARD VIEW -->
+        <div id="dashboard-view" class="view-pane active">
+          <div class="dashboard-banner glass-panel">
+            <div class="banner-text">
+              <h1 id="welcome-heading">Welcome back!</h1>
+              <p>Here is your current team workload, project breakdown, and active tasks.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openCreateProjectModal()">
+              <i class="fa-solid fa-plus"></i> Create New Project
+            </button>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card glass-panel">
+              <div class="stat-icon icon-purple"><i class="fa-solid fa-diagram-project"></i></div>
+              <div class="stat-data">
+                <span class="stat-value" id="stat-total-projects">0</span>
+                <span class="stat-label">Active Projects</span>
+              </div>
+            </div>
+            <div class="stat-card glass-panel">
+              <div class="stat-icon icon-blue"><i class="fa-solid fa-list-check"></i></div>
+              <div class="stat-data">
+                <span class="stat-value" id="stat-total-tasks">0</span>
+                <span class="stat-label">Total Workspace Tasks</span>
+              </div>
+            </div>
+            <div class="stat-card glass-panel">
+              <div class="stat-icon icon-emerald"><i class="fa-solid fa-circle-check"></i></div>
+              <div class="stat-data">
+                <span class="stat-value" id="stat-completed-tasks">0</span>
+                <span class="stat-label">Tasks Completed</span>
+              </div>
+            </div>
+            <div class="stat-card glass-panel">
+              <div class="stat-icon icon-amber"><i class="fa-solid fa-user-check"></i></div>
+              <div class="stat-data">
+                <span class="stat-value" id="stat-assigned-to-me">0</span>
+                <span class="stat-label">Assigned To Me</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-projects-section">
+            <div class="section-title-bar">
+              <h3>Your Group Projects</h3>
+            </div>
+            <div class="projects-grid" id="dashboard-projects-grid">
+              <!-- Projects rendered here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- PROJECT BOARD VIEW -->
+        <div id="project-view" class="view-pane hidden">
+          <!-- KANBAN BOARD CONTAINER -->
+          <div id="kanban-board" class="kanban-board">
+            <!-- Columns rendered here dynamically -->
+          </div>
+
+          <!-- LIST VIEW CONTAINER (Hidden by default) -->
+          <div id="list-board" class="list-board hidden">
+            <table class="task-table">
+              <thead>
+                <tr>
+                  <th>Task Title</th>
+                  <th>Status / Column</th>
+                  <th>Priority</th>
+                  <th>Due Date</th>
+                  <th>Assignees</th>
+                  <th>Checklist</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="list-board-body">
+                <!-- Rows inserted dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- MY ASSIGNED TASKS VIEW -->
+        <div id="my-tasks-view" class="view-pane hidden">
+          <div class="section-title-bar">
+            <h3>Tasks Assigned To You Across All Projects</h3>
+          </div>
+          <div class="my-tasks-container" id="my-tasks-list">
+            <!-- List of assigned tasks -->
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODALS -->
+  <!-- 1. CREATE / EDIT PROJECT MODAL -->
+  <div class="modal-backdrop hidden" id="project-modal">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h3 id="project-modal-title">Create Group Project</h3>
+        <button class="btn-icon" onclick="closeModal('project-modal')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="handleSaveProject(event)">
+        <input type="hidden" id="project-id-input">
+        <div class="form-group">
+          <label>Project Name *</label>
+          <input type="text" id="project-name-input" required placeholder="e.g. NextGen Web App">
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="project-desc-input" rows="3" placeholder="Brief overview of project goals..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Color Accent</label>
+          <div class="color-picker-grid">
+            <label class="color-option"><input type="radio" name="project-color" value="#6366f1" checked><span class="color-swatch" style="background:#6366f1"></span></label>
+            <label class="color-option"><input type="radio" name="project-color" value="#3b82f6"><span class="color-swatch" style="background:#3b82f6"></span></label>
+            <label class="color-option"><input type="radio" name="project-color" value="#10b981"><span class="color-swatch" style="background:#10b981"></span></label>
+            <label class="color-option"><input type="radio" name="project-color" value="#f59e0b"><span class="color-swatch" style="background:#f59e0b"></span></label>
+            <label class="color-option"><input type="radio" name="project-color" value="#ec4899"><span class="color-swatch" style="background:#ec4899"></span></label>
+            <label class="color-option"><input type="radio" name="project-color" value="#8b5cf6"><span class="color-swatch" style="background:#8b5cf6"></span></label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('project-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. CREATE / EDIT TASK CARD MODAL -->
+  <div class="modal-backdrop hidden" id="task-modal">
+    <div class="modal-card modal-lg glass-panel">
+      <div class="modal-header">
+        <h3 id="task-modal-title">Create Task Card</h3>
+        <button class="btn-icon" onclick="closeModal('task-modal')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="handleSaveTask(event)">
+        <input type="hidden" id="task-id-input">
+        <div class="form-group">
+          <label>Task Title *</label>
+          <input type="text" id="task-title-input" required placeholder="What needs to be done?">
+        </div>
+        <div class="form-row">
+          <div class="form-group col-6">
+            <label>Board Column / Status</label>
+            <select id="task-column-select"></select>
+          </div>
+          <div class="form-group col-6">
+            <label>Priority</label>
+            <select id="task-priority-select">
+              <option value="low">🟢 Low</option>
+              <option value="medium" selected>🟡 Medium</option>
+              <option value="high">🟠 High</option>
+              <option value="urgent">🔴 Urgent</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-6">
+            <label>Due Date</label>
+            <input type="date" id="task-due-date-input">
+          </div>
+          <div class="form-group col-6">
+            <label>Assign Team Members</label>
+            <select id="task-assignees-select" multiple size="3" class="multi-select-custom"></select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="task-desc-input" rows="4" placeholder="Detailed requirements, specifications, or notes..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('task-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. TASK DETAIL & DISCUSSION MODAL (Full interactive card detail) -->
+  <div class="modal-backdrop hidden" id="task-detail-modal">
+    <div class="modal-card modal-xl glass-panel">
+      <div class="modal-header">
+        <div class="detail-header-tags">
+          <span id="detail-priority-badge" class="badge">Medium</span>
+          <span id="detail-column-name" class="detail-col-tag">Column</span>
+        </div>
+        <div class="modal-header-actions">
+          <button class="btn btn-danger btn-sm" onclick="deleteCurrentTask()"><i class="fa-solid fa-trash"></i> Delete</button>
+          <button class="btn-icon" onclick="closeModal('task-detail-modal')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+
+      <div class="modal-body detail-grid">
+        <!-- Main Content (Left Column) -->
+        <div class="detail-main">
+          <h2 id="detail-task-title" class="detail-title">Task Title</h2>
+
+          <!-- Description Section -->
+          <div class="detail-section">
+            <div class="section-label"><i class="fa-solid fa-align-left"></i> Description</div>
+            <div id="detail-task-desc" class="detail-desc-box">No description provided.</div>
+          </div>
+
+          <!-- Subtask Checklist Section -->
+          <div class="detail-section">
+            <div class="section-label-between">
+              <span><i class="fa-solid fa-square-check"></i> Subtask Checklist</span>
+              <span id="checklist-progress-text" class="text-xs text-muted">0/0 Completed</span>
+            </div>
+            <div class="progress-bar-container">
+              <div id="checklist-progress-fill" class="progress-bar-fill" style="width: 0%"></div>
+            </div>
+            <div id="checklist-items-container" class="checklist-items">
+              <!-- Checklist items here -->
+            </div>
+            <div class="add-checklist-row">
+              <input type="text" id="new-checklist-input" placeholder="Add a subtask item..." onkeypress="handleChecklistKeyPress(event)">
+              <button class="btn btn-secondary btn-sm" onclick="addChecklistItem()"><i class="fa-solid fa-plus"></i> Add</button>
+            </div>
+          </div>
+
+          <!-- Discussion & Comments Section -->
+          <div class="detail-section">
+            <div class="section-label"><i class="fa-solid fa-comments"></i> Task Activity & Discussion</div>
+            <div class="comment-input-box">
+              <textarea id="new-comment-input" rows="2" placeholder="Write a comment or update..."></textarea>
+              <button class="btn btn-primary btn-sm" onclick="submitTaskComment()"><i class="fa-solid fa-paper-plane"></i> Comment</button>
+            </div>
+
+            <div id="comments-thread" class="comments-thread">
+              <!-- Comments dynamically rendered -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar Attributes (Right Column) -->
+        <div class="detail-sidebar">
+          <div class="detail-meta-box">
+            <label class="meta-label"><i class="fa-solid fa-calendar"></i> Due Date</label>
+            <input type="date" id="detail-due-date-picker" onchange="updateTaskDueDate(this.value)">
+          </div>
+
+          <div class="detail-meta-box">
+            <label class="meta-label"><i class="fa-solid fa-user-plus"></i> Assignees</label>
+            <div id="detail-assignees-list" class="assignees-pill-list"></div>
+            <select id="add-assignee-select" class="form-select-sm" onchange="addAssigneeToTask(this.value)">
+              <option value="">+ Add Member...</option>
+            </select>
+          </div>
+
+          <div class="detail-meta-box">
+            <label class="meta-label"><i class="fa-regular fa-clock"></i> Created</label>
+            <span id="detail-created-at" class="meta-value">Today</span>
+          </div>
+
+          <div class="detail-meta-box">
+            <label class="meta-label"><i class="fa-regular fa-user"></i> Reporter</label>
+            <span id="detail-reporter" class="meta-value">User</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. PROJECT MEMBERS MODAL -->
+  <div class="modal-backdrop hidden" id="project-members-modal">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h3>Project Team Members</h3>
+        <button class="btn-icon" onclick="closeModal('project-members-modal')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="add-member-bar">
+        <select id="invite-user-select" class="form-select-sm">
+          <option value="">Select registered user to add...</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="addSelectedMemberToProject()"><i class="fa-solid fa-user-plus"></i> Add Member</button>
+      </div>
+      <div id="project-members-list" class="members-list-box">
+        <!-- Members list dynamically added -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. CREATE COLUMN MODAL -->
+  <div class="modal-backdrop hidden" id="column-modal">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h3>Add Board Column</h3>
+        <button class="btn-icon" onclick="closeModal('column-modal')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="handleCreateColumn(event)">
+        <div class="form-group">
+          <label>Column Title *</label>
+          <input type="text" id="column-name-input" required placeholder="e.g. In Testing / Released">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('column-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add Column</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Socket.io client script -->
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- Application JS -->
+  <script src="js/app.js"></script>
+</body>
+</html>
